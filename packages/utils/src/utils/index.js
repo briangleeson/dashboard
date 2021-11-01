@@ -50,9 +50,14 @@ export function getStepDefinition({ selectedStepId, task, taskRun }) {
     return null;
   }
 
-  const stepDefinitions =
-    (taskRun.spec?.taskSpec ? taskRun.spec.taskSpec.steps : task.spec?.steps) ||
-    [];
+  let stepDefinitions = [];
+  if (taskRun.status?.taskSpec) {
+    stepDefinitions = taskRun.status.taskSpec.steps;
+  } else if (taskRun.spec?.taskSpec) {
+    stepDefinitions = taskRun.spec.taskSpec.steps;
+  } else if (task?.spec) {
+    stepDefinitions = task.spec.steps;
+  }
 
   const definition = stepDefinitions?.find(
     step => step.name === selectedStepId
@@ -405,12 +410,34 @@ export function getTaskRunsWithPlaceholders({
   taskRuns,
   tasks
 }) {
-  const pipelineTasks = []
-    .concat(pipeline?.spec?.tasks)
-    .concat(pipelineRun?.spec?.pipelineSpec?.tasks)
+  let pipelineTasks = [];
+
+  if (pipelineRun?.status?.pipelineSpec?.tasks) {
+    pipelineTasks = pipelineTasks.concat(pipelineRun.status.pipelineSpec.tasks);
+  } else {
+    pipelineTasks = pipelineTasks
+      .concat(pipeline?.spec?.tasks)
+      .concat(pipelineRun?.spec?.pipelineSpec?.tasks);
+  }
+  pipelineTasks = pipelineTasks
     .concat(pipeline?.spec?.finally)
     .concat(pipelineRun?.spec?.pipelineSpec?.finally)
     .filter(Boolean);
+
+  // let pipelineTasks = []
+  //   .concat(pipeline?.spec?.tasks)
+  //   .concat(pipelineRun?.spec?.pipelineSpec?.tasks)
+  //   .concat(pipeline?.spec?.finally)
+  //   .concat(pipelineRun?.spec?.pipelineSpec?.finally);
+
+  // if (
+  //   !pipeline?.spec?.tasks &&
+  //   !pipelineRun?.spec?.pipelineSpec?.tasks &&
+  //   pipelineRun?.status?.pipelineSpec?.tasks
+  // ) {
+  //   pipelineTasks = pipelineTasks.concat(pipelineRun.status.pipelineSpec.tasks);
+  // }
+  // pipelineTasks = pipelineTasks.filter(Boolean);
 
   const taskRunsToDisplay = [];
   pipelineTasks.forEach(pipelineTask => {
