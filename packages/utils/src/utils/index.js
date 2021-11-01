@@ -51,11 +51,11 @@ export function getStepDefinition({ selectedStepId, task, taskRun }) {
   }
 
   let stepDefinitions = [];
-  if (taskRun.status?.taskSpec) {
+  if (taskRun.status?.taskSpec?.steps) {
     stepDefinitions = taskRun.status.taskSpec.steps;
-  } else if (taskRun.spec?.taskSpec) {
+  } else if (taskRun.spec?.taskSpec?.steps) {
     stepDefinitions = taskRun.spec.taskSpec.steps;
-  } else if (task?.spec) {
+  } else if (task?.spec?.steps) {
     stepDefinitions = task.spec.steps;
   }
 
