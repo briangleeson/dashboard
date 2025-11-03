@@ -1,6 +1,6 @@
 {
   "name": "@tektoncd/dashboard-components",
-  "version": "0.61.0-alpha.5",
+  "version": "0.63.0-alpha.0",
   "author": {
     "name": "The Tekton Authors"
   },
@@ -24,19 +24,19 @@
     "prop-types": "^15.7.2",
     "react-intl-formatted-duration": "^4.0.0",
     "react-window": "^1.8.11",
-    "tlds": "^1.260.0",
+    "tlds": "^1.261.0",
     "yaml": "^2.8.1"
   },
   "peerDependencies": {
     "@carbon/react": "^1.65.0",
-    "react": "^16.14.0 || ^17.0.2",
-    "react-dom": "^16.14.0 || ^17.0.2",
+    "react": "^16.14.0 || ^17.0.2 || ^18.3.0",
+    "react-dom": "^16.14.0 || ^17.0.2 || ^18.3.0",
     "react-intl": "^7.0.1",
     "react-router-dom": "^5.0.0 || ^6.0.0"
   },
   "engines": {
-    "node": "^20.18.0",
-    "npm": "^10.8.2"
+    "node": "^24.10.0",
+    "npm": "^11.6.1"
   },
   "publishConfig": {
     "access": "public"

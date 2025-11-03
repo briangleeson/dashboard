@@ -214,7 +214,9 @@ function Step({
                 )
               : step.name}
           </span>
-          <span className="tkn--step-duration">{duration}</span>
+          {!isSidecar ? (
+            <span className="tkn--step-duration">{duration}</span>
+          ) : null}
         </>
       }
     >
@@ -278,7 +280,7 @@ function Logs({
   }
   if (skippedTask) {
     return (
-      <span>
+      <span className="tkn--task-skipped">
         {intl.formatMessage({
           id: 'dashboard.taskRun.logs.skipped',
           defaultMessage:

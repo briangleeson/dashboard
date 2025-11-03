@@ -32,7 +32,7 @@ const itemSize = 16; // This should be kept in sync with the line-height in SCSS
 const defaultHeight = itemSize * 100 + itemSize / 2;
 
 export const logFormatRegex =
-  /^((?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(.\d{3,9})?(Z|[+-]\d{2}:\d{2}))\s?)?(::(?<command>group|endgroup|error|warning|info|notice|debug)::)?(?<message>.*)?$/s;
+  /^((?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(.\d{3,9})?(Z|[+-]\d{2}:\d{2}))\s?)?(::(?<command>group|endgroup|error|warning|info|notice|debug|trace)::)?(?<message>.*)?$/s;
 
 function LogsFilteredNotification({ displayedLogLines, totalLogLines }) {
   const intl = useIntl();
@@ -57,19 +57,16 @@ function LogsFilteredNotification({ displayedLogLines, totalLogLines }) {
   const hiddenLines = totalLogLines - displayedLogLines;
   const message =
     hiddenLines === 1
-      ? intl.formatMessage(
-          {
-            id: 'dashboard.logs.hidden.one',
-            defaultMessage:
-              '1 line hidden due to selected log levels or collapsed groups'
-          },
-          { numHiddenLines: totalLogLines - displayedLogLines }
-        )
+      ? intl.formatMessage({
+          id: 'dashboard.logs.hidden.one',
+          defaultMessage:
+            '1 line hidden due to selected log levels or collapsed groups'
+        })
       : intl.formatMessage(
           {
             id: 'dashboard.logs.hidden',
             defaultMessage:
-              '{numHiddenLines, plural, other {# lines}} hidden due to selected log levels or collapsed groups'
+              '{numHiddenLines, plural, other {# lines}} hidden due to selected log levels or collapsed groups' // eslint-disable-line formatjs/enforce-plural-rules
           },
           { numHiddenLines: totalLogLines - displayedLogLines }
         );
@@ -363,7 +360,7 @@ export class LogContainer extends Component {
         }
       } else if (isEndGroup) {
         currentGroupIndex = null;
-        countEndGroupCommands++; // eslint-disable-line no-plusplus
+        countEndGroupCommands++;
         // we don't render anything for the endgroup command
         return acc;
       }
@@ -521,12 +518,14 @@ export class LogContainer extends Component {
       .read()
       .then(result => this.readChunks(result, decoder, logs))
       .catch(error => {
-        console.error(error); // eslint-disable-line no-console
+        console.error(error);
         return this.loadLog();
       });
   };
 
   loadLog = async () => {
+    // In development mode this request is duplicated due to usage of StrictMode component wrapper
+    // It highlights a potential problem but only affects local dev and not production mode
     const { fetchLogs, forcePolling, intl, stepStatus, pollingInterval } =
       this.props;
     if (!fetchLogs) {
@@ -558,7 +557,7 @@ export class LogContainer extends Component {
         }
       }
     } catch (error) {
-      console.error(error); // eslint-disable-line no-console
+      console.error(error);
       this.setState({
         loading: false,
         logs: [

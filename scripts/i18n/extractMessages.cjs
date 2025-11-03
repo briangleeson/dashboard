@@ -1,5 +1,5 @@
 /*
-Copyright 2019-2023 The Tekton Authors
+Copyright 2019-2025 The Tekton Authors
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -11,11 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-require('dotenv').config();
-
-const difference = require('lodash.difference');
 const fs = require('fs');
-const omit = require('lodash.omit');
 const path = require('path');
 
 const basePath = process.cwd();
@@ -26,14 +22,11 @@ const messagesFilePrefix = 'messages_';
 const messagesPath = path.resolve(basePath, 'src/nls/');
 
 const defaultMessages = require(
-  path.resolve(
-    messagesPath,
-    `${messagesFilePrefix}${defaultLocale}.json`
-  )
+  path.resolve(messagesPath, `${messagesFilePrefix}${defaultLocale}.json`)
 );
 
 function log(...args) {
-  console.log(...args); // eslint-disable-line no-console
+  console.log(...args);
 }
 
 function sortMessages(messages) {
@@ -56,6 +49,13 @@ function writeLocaleFile(locale, messages) {
   fs.writeFileSync(localePath, JSON.stringify(messages, null, 2));
 }
 
+function omit(obj, staleKeys) {
+  const newObj = { ...obj }; // Create a new object with the same properties
+  staleKeys.forEach(key => {
+    delete newObj[key]; // Remove the specified keys
+  });
+  return newObj;
+}
 // ----------------------------------------------------------------------------
 
 log('Updating translation files\n');
@@ -67,14 +67,19 @@ buildLocales
   .forEach(locale => {
     let translations = {};
     try {
-      translations =
-        require(`${basePath}/src/nls/${messagesFilePrefix}${locale}.json`);
+      translations = require(
+        `${basePath}/src/nls/${messagesFilePrefix}${locale}.json`
+      );
     } catch {
       log(`No message bundle found for '${locale}', one will be created.`);
     }
 
     // remove stale strings
-    const stale = difference(Object.keys(translations), messageKeys);
+    // Below is the equivalent of lodash.difference
+    const stale = Object.keys(translations).filter(
+      value => !messageKeys.includes(value)
+    );
+    // Below is the equivalent of lodash.omit
     translations = omit(translations, stale);
 
     // add new strings
